@@ -1,10 +1,14 @@
 package service
 
-import "github.com/RINcHIlol/rest.git/pkg/repository"
+import (
+	restApi "github.com/RINcHIlol/rest.git"
+	"github.com/RINcHIlol/rest.git/pkg/repository"
+)
 
 //service - работа с бизнес логикой
 
 type Authorization interface {
+	CreateUser(user restApi.User) (int, error)
 }
 
 type TodoList interface {
@@ -20,5 +24,7 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Authorization: NewAuthService(repos.Authorization),
+	}
 }

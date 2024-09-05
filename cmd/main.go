@@ -8,18 +8,18 @@ import (
 	_ "github.com/golang-migrate/migrate"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
 func main() {
 	if err := initConfig(); err != nil {
-		log.Fatal(err.Error())
+		logrus.Fatal(err.Error())
 	}
 
 	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	db, err := repository.NewPostgresDB(repository.Config{
@@ -32,7 +32,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	repos := repository.NewRepository(db)
@@ -41,7 +41,7 @@ func main() {
 
 	srv := new(restApi.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		log.Fatalf("error: %s", err.Error())
+		logrus.Fatalf("error: %s", err.Error())
 	}
 }
 

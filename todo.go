@@ -1,5 +1,19 @@
 package restApi
 
+import "errors"
+
+type UpdateTodoList struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
+
+func (i UpdateTodoList) Validate() error {
+	if i.Description == nil && i.Title == nil {
+		return errors.New("update structure has no values")
+	}
+	return nil
+}
+
 type TodoList struct {
 	Id          int    `json:"id" db:"id"`
 	Title       string `json:"title" db:"title" binding:"required"`

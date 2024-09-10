@@ -1,6 +1,8 @@
 package restApi
 
-import "errors"
+import (
+	"errors"
+)
 
 type UpdateTodoList struct {
 	Title       *string `json:"title"`
@@ -9,6 +11,19 @@ type UpdateTodoList struct {
 
 func (i UpdateTodoList) Validate() error {
 	if i.Description == nil && i.Title == nil {
+		return errors.New("update structure has no values")
+	}
+	return nil
+}
+
+type UpdateTodoItem struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+	Done        *bool   `json:"done"`
+}
+
+func (i UpdateTodoItem) Validate() error {
+	if i.Title == nil && i.Done == nil && i.Description == nil {
 		return errors.New("update structure has no values")
 	}
 	return nil
@@ -28,9 +43,9 @@ type UserList struct {
 
 type TodoItem struct {
 	Id          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Done        bool   `json:"done"`
+	Title       string `json:"title" db:"title" binding:"required"`
+	Description string `json:"description" db:"description"`
+	Done        bool   `json:"done" db:"done"`
 }
 
 type ListsItem struct {

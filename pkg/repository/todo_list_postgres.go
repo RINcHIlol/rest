@@ -16,10 +16,10 @@ func NewToDoListPostgres(db *sqlx.DB) *ToDoListPostgres {
 	return &ToDoListPostgres{db: db}
 }
 
-func (s *ToDoListPostgres) Create(userId int, list restApi.TodoList) (int, error) {
+func (r *ToDoListPostgres) Create(userId int, list restApi.TodoList) (int, error) {
 	var id int
 
-	tx, err := s.db.Begin()
+	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, nil
 	}
@@ -41,31 +41,31 @@ func (s *ToDoListPostgres) Create(userId int, list restApi.TodoList) (int, error
 	return id, tx.Commit()
 }
 
-func (s *ToDoListPostgres) GetAll(userId int) ([]restApi.TodoList, error) {
+func (r *ToDoListPostgres) GetAll(userId int) ([]restApi.TodoList, error) {
 	var lists []restApi.TodoList
 	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1",
 		todoListsTable, usersListsTable)
-	err := s.db.Select(&lists, query, userId)
+	err := r.db.Select(&lists, query, userId)
 	return lists, err
 }
 
-func (s *ToDoListPostgres) GetById(userId, id int) (restApi.TodoList, error) {
+func (r *ToDoListPostgres) GetById(userId, id int) (restApi.TodoList, error) {
 	var list restApi.TodoList
 	query := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl"+
 		" INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 and ul.list_id = $2",
 		todoListsTable, usersListsTable)
-	err := s.db.Get(&list, query, userId, id)
+	err := r.db.Get(&list, query, userId, id)
 	return list, err
 }
 
-func (s *ToDoListPostgres) Delete(userid, id int) error {
+func (r *ToDoListPostgres) Delete(userid, id int) error {
 	query := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.list_id and ul.user_id=$1 and ul.list_id=$2",
 		todoListsTable, usersListsTable)
-	_, err := s.db.Exec(query, userid, id)
+	_, err := r.db.Exec(query, userid, id)
 	return err
 }
 
-func (s *ToDoListPostgres) Update(userId, id int, input restApi.UpdateTodoList) error {
+func (r *ToDoListPostgres) Update(userId, id int, input restApi.UpdateTodoList) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	argId := 1
@@ -88,9 +88,9 @@ func (s *ToDoListPostgres) Update(userId, id int, input restApi.UpdateTodoList) 
 		todoListsTable, setQuery, usersListsTable, argId, argId+1)
 	args = append(args, id, userId)
 
-	logrus.Debugf("updateQuery s", query)
+	logrus.Debugf("updateQuery %s", query)
 	logrus.Debugf("args: %s", args)
 
-	_, err := s.db.Exec(query, args...)
+	_, err := r.db.Exec(query, args...)
 	return err
 }
